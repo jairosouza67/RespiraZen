@@ -204,7 +204,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Logout
   const signOut = async () => {
     if (!isFirebaseConfigured()) {
-      throw new Error('Firebase não configurado. Configure suas chaves no arquivo .env');
+      // Se Firebase não está configurado, fazer logout local
+      setUser(null);
+      setUserProfile(null);
+      setUserProgress(null);
+      return;
     }
     
     try {
