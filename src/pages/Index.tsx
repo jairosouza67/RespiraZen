@@ -1,8 +1,27 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { AuthButton } from "@/components/auth/AuthButton";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
+import { User } from "lucide-react";
 
 const Index = () => {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <main className="min-h-screen relative overflow-hidden">
       {/* Imagem de fundo */}
@@ -28,10 +47,10 @@ const Index = () => {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full border border-white/10 animate-pulse delay-1000"></div>
       </div>
 
-      <section className="container mx-auto px-6 py-4 md:py-6 flex flex-col justify-center min-h-screen relative z-10">
+  <section className="container mx-auto px-6 pt-[2px] pb-4 md:pt-[4px] md:pb-6 flex flex-col justify-center min-h-screen relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="text-left max-w-2xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-3">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-3 mt-0">
               Respiração Guiada e<br />Meditação, em 1<br />minuto
             </h1>
             
@@ -40,23 +59,42 @@ const Index = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <Link to="/respirar">
-                <Button 
-                  size="lg" 
-                  className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 text-base font-medium rounded-lg transition-all duration-200 min-w-[180px]"
-                >
-                  Começar a Respirar
-                </Button>
-              </Link>
-              <Link to="/meditacoes">
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="border border-gray-300 text-gray-600 hover:bg-gray-50 px-8 py-3 text-base font-medium rounded-lg transition-all duration-200 min-w-[180px] bg-white/80"
-                >
-                  Meditações
-                </Button>
-              </Link>
+              {user ? (
+                // Usuário logado - mostrar botões principais
+                <>
+                  <Link to="/respirar">
+                    <Button 
+                      size="lg" 
+                      className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 text-base font-medium rounded-lg transition-all duration-200 min-w-[180px]"
+                    >
+                      Começar a Respirar
+                    </Button>
+                  </Link>
+                  <Link to="/meditacoes">
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      className="border border-gray-300 text-gray-600 hover:bg-gray-50 px-8 py-3 text-base font-medium rounded-lg transition-all duration-200 min-w-[180px] bg-white/80"
+                    >
+                      Meditações
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                // Usuário não logado - mostrar botão de login e preview
+                <>
+                  <AuthButton onOpenAuth={() => setIsAuthModalOpen(true)} />
+                  <Link to="/respirar">
+                    <Button 
+                      variant="outline" 
+                      size="lg" 
+                      className="border border-white/30 text-white hover:bg-white/10 px-8 py-3 text-base font-medium rounded-lg transition-all duration-200 min-w-[180px] backdrop-blur-sm"
+                    >
+                      Experimentar Grátis
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Features */}
@@ -77,6 +115,12 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Modal de Autenticação */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
     </main>
   );
 };
