@@ -1,15 +1,18 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Header } from "./components/Header";
+import { ImprovedHeader } from "./components/Layout/ImprovedHeader";
 import { BottomNavigation } from "./components/BottomNavigation";
 import { useIsMobile } from "./hooks/use-mobile";
 
-// Importar todas as páginas
-import Index from "./pages/Index";
-import Breathing from "./pages/Breathing";
+// Import all pages
+import ImprovedIndex from "./pages/ImprovedIndex";
+import ImprovedBreathing from "./pages/ImprovedBreathing";
+import DashboardPage from "./pages/DashboardPage";
+import CommunityPage from "./pages/CommunityPage";
 import Meditations from "./pages/Meditations";
 import Stats from "./pages/Stats";
 import Progress from "./pages/Progress";
@@ -18,7 +21,7 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeProvider } from "./context/ImprovedThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeSelector } from "./components/Settings/ThemeSelector";
 
@@ -33,12 +36,14 @@ function App() {
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <div className="min-h-screen bg-background">
-                <Header />
+              <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+                <ImprovedHeader />
                 <main className={`${isMobile ? 'pb-20' : 'pb-8'}`}>
                   <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/respirar" element={<Breathing />} />
+                    <Route path="/" element={<ImprovedIndex />} />
+                    <Route path="/respirar" element={<ImprovedBreathing />} />
+                    <Route path="/dashboard" element={<DashboardPage />} />
+                    <Route path="/comunidade" element={<CommunityPage />} />
                     <Route path="/meditacoes" element={<Meditations />} />
                     <Route path="/estatisticas" element={<Stats />} />
                     <Route path="/progresso" element={<Progress />} />

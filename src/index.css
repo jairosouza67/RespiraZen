@@ -30,8 +30,8 @@ All colors MUST be HSL.
     --muted-foreground: 215.4 16.3% 46.9%;
 
     /* Accent: Warm Lavender */
-    --accent: 260 15% 92%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 174 25% 94%;
+    --accent-foreground: 174 65% 25%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -283,10 +283,16 @@ All colors MUST be HSL.
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
+    transform: translateX(-100%);
   }
   100% {
     background-position: 200% 0;
+    transform: translateX(100%);
   }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
 }
 
 /* Focus states for accessibility */

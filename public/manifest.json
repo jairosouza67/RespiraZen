@@ -1,22 +1,14 @@
+
 {
-  "name": "RespiraZen - Guia de Meditação Híbrida",
-  "short_name": "RespiraZen",
-  "description": "Desbloqueando a Fluência e o Autocontrole através da meditação híbrida",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
+  "name": "RespiraZen 🧘‍♀️ - Respiração Guiada",
+  "short_name": "RespiraZen 🧘‍♀️",
+  "description": "Transforme sua vida com respiração guiada e meditação mindfulness",
   "theme_color": "#22c55e",
-  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "display": "standalone",
   "scope": "/",
-  "lang": "pt-BR",
-  "categories": ["health", "lifestyle", "meditation"],
+  "start_url": "/",
   "icons": [
-    {
-      "src": "/meditation-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
     {
       "src": "/icons/icon-72x72.png",
       "sizes": "72x72",
@@ -64,6 +56,49 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
+    }
+  ],
+  "categories": ["health", "lifestyle", "medical"],
+  "lang": "pt-BR",
+  "orientation": "portrait-primary",
+  "shortcuts": [
+    {
+      "name": "Respirar Agora",
+      "short_name": "Respirar",
+      "description": "Iniciar sessão de respiração",
+      "url": "/respirar",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ver Progresso",
+      "short_name": "Dashboard",
+      "description": "Acompanhar progresso",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/breathing.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ]
 }

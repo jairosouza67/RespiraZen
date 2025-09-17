@@ -7,7 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import EmergencyIndex from "./pages/EmergencyIndex";
 import NotFound from "./pages/NotFound";
 
-import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeProvider } from "./context/ImprovedThemeContext";
 
 function EmergencyApp() {
   return (

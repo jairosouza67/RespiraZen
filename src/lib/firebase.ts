@@ -21,8 +21,13 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Analytics (apenas em produção)
-export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+// Analytics (somente em produção e fora de localhost)
+export const analytics = (
+  typeof window !== 'undefined' &&
+  import.meta.env.PROD &&
+  window.location.hostname !== 'localhost' &&
+  !!firebaseConfig.measurementId
+) ? getAnalytics(app) : null;
 
 // Provedor do Google
 export const googleProvider = new GoogleAuthProvider();

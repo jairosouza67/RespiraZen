@@ -86,15 +86,7 @@ export const Header = () => {
                 </Button>
               </div>
             ) : (
-              <Button 
-                onClick={() => setIsAuthModalOpen(true)}
-                className="text-primary hover:text-primary-foreground hover:bg-primary"
-                variant="ghost"
-                size="sm"
-              >
-                <User className="w-4 h-4 mr-2" />
-                Entrar
-              </Button>
+              <div className="w-8 h-8" />
             )}
           </div>
         </div>
