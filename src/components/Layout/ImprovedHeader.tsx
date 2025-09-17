@@ -1,4 +1,3 @@
-
 'use client';
 
 import { motion } from 'framer-motion';
@@ -9,11 +8,20 @@ import { AuthButton } from "@/components/auth/AuthButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { AuthModal } from "@/components/auth/AuthModal";
-import { Moon, Sun, Menu, X } from "lucide-react";
+import { Moon, Sun, Menu, X, User, LogOut, Settings } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 export function ImprovedHeader() {
   const { theme, toggleTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -26,9 +34,27 @@ export function ImprovedHeader() {
     { name: 'Comunidade', path: '/comunidade' },
   ];
 
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logout realizado",
+        description: "Você foi desconectado com sucesso!",
+        duration: 3000,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao fazer logout",
+        description: "Houve um erro ao desconectar. Tente novamente.",
+        variant: "destructive",
+        duration: 3000,
+      });
+    }
+  };
+
   return (
     <>
-      <motion.header 
+      <motion.header
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -80,11 +106,59 @@ export function ImprovedHeader() {
               {/* Auth */}
               <div className="hidden md:block">
                 {user ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground">
-                      Olá, {user.displayName || user.email}
-                    </span>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="relative h-8 w-8 rounded-full"
+                      >
+                        <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full">
+                          {user.photoURL ? (
+                            <img
+                              className="h-8 w-8 rounded-full"
+                              src={user.photoURL}
+                              alt={user.displayName || user.email || 'User'}
+                            />
+                          ) : (
+                            <User className="h-4 w-4 text-primary" />
+                          )}
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="end" forceMount>
+                      <div className="flex items-center justify-start gap-2 p-2">
+                        <div className="flex flex-col space-y-1 leading-none">
+                          {user.displayName && (
+                            <p className="font-medium">{user.displayName}</p>
+                          )}
+                          <p className="w-[200px] truncate text-sm text-muted-foreground">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                        <Link to="/dashboard" className="flex items-center">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>Perfil</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/dashboard" className="flex items-center">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Configurações</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-red-600 focus:text-red-600 cursor-pointer"
+                        onSelect={handleLogout}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Sair</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 ) : (
                   <AuthButton onOpenAuth={() => setIsAuthModalOpen(true)} />
                 )}
@@ -130,13 +204,53 @@ export function ImprovedHeader() {
                     {item.name}
                   </Link>
                 ))}
-                
+
                 {/* Mobile Auth */}
                 <div className="px-3 py-2">
                   {user ? (
-                    <span className="text-sm text-muted-foreground">
-                      Olá, {user.displayName || user.email}
-                    </span>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full">
+                          {user.photoURL ? (
+                            <img
+                              className="h-8 w-8 rounded-full"
+                              src={user.photoURL}
+                              alt={user.displayName || user.email || 'User'}
+                            />
+                          ) : (
+                            <User className="h-4 w-4 text-primary" />
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          {user.displayName && (
+                            <span className="text-sm font-medium">{user.displayName}</span>
+                          )}
+                          <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+                            {user.email}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Link
+                          to="/dashboard"
+                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-2 py-1 hover:bg-muted rounded"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <User className="h-4 w-4" />
+                          <span>Perfil</span>
+                        </Link>
+                        <button
+                          onClick={() => {
+                            handleLogout();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="flex items-center gap-2 text-sm text-red-600 hover:text-red-700 px-2 py-1 hover:bg-red-50 dark:hover:bg-red-950 rounded w-full text-left"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          <span>Sair</span>
+                        </button>
+                      </div>
+                    </div>
                   ) : (
                     <AuthButton onOpenAuth={() => {
                       setIsAuthModalOpen(true);
@@ -151,9 +265,9 @@ export function ImprovedHeader() {
       </motion.header>
 
       {/* Auth Modal */}
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </>
   );
