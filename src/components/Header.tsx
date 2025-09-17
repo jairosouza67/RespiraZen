@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { AuthButton } from "@/components/auth/AuthButton";
+// AuthButton removido conforme solicitação do usuário
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, LogOut } from "lucide-react";
@@ -85,9 +85,7 @@ export const Header = () => {
                   <span className="hidden sm:inline">Sair</span>
                 </Button>
               </div>
-            ) : (
-              <div className="w-8 h-8" />
-            )}
+            ) : null}
           </div>
         </div>
       </header>

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ImprovedThemeContext";
-import { AuthButton } from "@/components/auth/AuthButton";
+// AuthButton removido
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { AuthModal } from "@/components/auth/AuthModal";
@@ -134,9 +134,7 @@ export function ImprovedHeader() {
                     <span className="text-xs">Sair</span>
                   </Button>
                 </div>
-              ) : (
-                <AuthButton onOpenAuth={() => setIsAuthModalOpen(true)} />
-              )}
+              ) : null}
               {/* Theme Toggle */}
               <Button
                 variant="ghost"
@@ -225,9 +223,7 @@ export function ImprovedHeader() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                ) : (
-                  <AuthButton onOpenAuth={() => setIsAuthModalOpen(true)} />
-                )}
+                ) : null}
               </div>
 
               {/* Mobile Menu Button */}
@@ -317,12 +313,7 @@ export function ImprovedHeader() {
                         </button>
                       </div>
                     </div>
-                  ) : (
-                    <AuthButton onOpenAuth={() => {
-                      setIsAuthModalOpen(true);
-                      setIsMobileMenuOpen(false);
-                    }} />
-                  )}
+                  ) : null}
                 </div>
               </div>
             </motion.div>

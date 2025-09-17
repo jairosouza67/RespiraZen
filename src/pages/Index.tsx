@@ -2,14 +2,22 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { AuthButton } from "@/components/auth/AuthButton";
+// AuthButton removido
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
-import { Play } from "lucide-react";
+import { Play, LogOut, User } from "lucide-react";
 
 const Index = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (err) {
+      console.error('Erro ao fazer logout:', err);
+    }
+  };
 
   if (loading) {
     return (
@@ -73,9 +81,36 @@ const Index = () => {
                     </Button>
                   </Link>
                   
-                  {/* Informações do usuário logado */}
-                  <div className="flex items-center gap-4 p-4 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border border-gray-200/50">
-                    <AuthButton onOpenAuth={() => setIsAuthModalOpen(true)} />
+                  {/* Informações do usuário logado + Logout */}
+                  <div className="flex items-center gap-4 p-4 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                    {user.photoURL ? (
+                      <img
+                        src={user.photoURL}
+                        alt={user.displayName || user.email || 'Avatar'}
+                        className="w-12 h-12 rounded-full object-cover border-2 border-primary/30"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-primary/15 flex items-center justify-center border border-primary/30">
+                        <User className="w-6 h-6 text-primary" />
+                      </div>
+                    )}
+                    <div className="flex flex-col min-w-[140px]">
+                      <span className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate max-w-[160px]">
+                        {user.displayName || user.email?.split('@')[0] || 'Usuário'}
+                      </span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[160px]">
+                        {user.email}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSignOut}
+                      className="flex items-center gap-1 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Sair</span>
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -91,10 +126,7 @@ const Index = () => {
                     </Button>
                   </Link>
                   
-                  {/* Botão de Login */}
-                  <div className="flex items-center gap-4">
-                    <AuthButton onOpenAuth={() => setIsAuthModalOpen(true)} />
-                  </div>
+                  {/* (Login removido — se quiser reativar um modal, basta pedir) */}
                 </div>
               )}
             </div>

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { motion } from 'framer-motion';
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
-import { AuthButton } from "@/components/auth/AuthButton";
+// AuthButton removido
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { Play, Users, TrendingUp } from "lucide-react";
