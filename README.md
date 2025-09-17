@@ -1,4 +1,3 @@
-
 # RespiraZen - Aplicativo de Respiração Guiada e Meditação
 
 ## 🌟 Sobre o Projeto
@@ -185,6 +184,26 @@ src/
 - [ ] CI/CD pipeline
 - [ ] Monitoramento de performance
 - [ ] Analytics avançados
+
+## 🔐 Autenticação (Firebase)
+
+A aplicação suporta autenticação via Firebase (email/senha e Google). Para ativar, crie um arquivo `.env` na raiz com:
+
+```
+VITE_FIREBASE_API_KEY=SUACHAVE
+VITE_FIREBASE_AUTH_DOMAIN=seuapp.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=seu_projeto
+VITE_FIREBASE_STORAGE_BUCKET=seuapp.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=XXXXXXXXXXXX
+VITE_FIREBASE_APP_ID=1:XXXXXXXXXXXX:web:YYYYYYYYYYYYYY
+```
+
+Depois reinicie `npm run dev`.
+
+### Dicas de Depuração
+- Se o botão de logout não aparecer, verifique se `user` está vindo como `null` no `AuthContext`.
+- Confirme se as variáveis `.env` não usam o placeholder `your_api_key_here`.
+- Faça hard reload (Ctrl+Shift+R) se estiver usando PWA/service worker.
 
 ## 🤝 Contribuição
 

@@ -87,6 +87,56 @@ export function ImprovedHeader() {
 
             {/* Actions */}
             <div className="flex items-center space-x-4">
+              {/* User / Auth Section (unificado) */}
+              {user ? (
+                <div className="flex items-center gap-2">
+                  {/* Avatar (sempre visível) */}
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="relative flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    aria-label="Abrir menu do usuário"
+                  >
+                    {user.photoURL ? (
+                      <img
+                        src={user.photoURL}
+                        alt={user.displayName || user.email || 'Avatar'}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <User className="h-4 w-4 text-primary" />
+                    )}
+                  </button>
+                  {/* Saudação + logout (desktop) */}
+                  <div className="hidden md:flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground max-w-[160px] truncate">
+                      Olá, {user.displayName || user.email}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="h-4 w-4 mr-1" />
+                      <span>Sair</span>
+                    </Button>
+                  </div>
+                  {/* Logout rápido em mobile */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="md:hidden flex items-center gap-1 px-2"
+                    onClick={handleLogout}
+                    aria-label="Sair"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="text-xs">Sair</span>
+                  </Button>
+                </div>
+              ) : (
+                <AuthButton onOpenAuth={() => setIsAuthModalOpen(true)} />
+              )}
               {/* Theme Toggle */}
               <Button
                 variant="ghost"
@@ -109,8 +159,24 @@ export function ImprovedHeader() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
+                        type="button"
+                        aria-label="User menu / logout on mobile"
                         variant="ghost"
                         className="relative h-8 w-8 rounded-full"
+                        // On small screens, make the avatar act as a visible logout action
+                        // (mobile users can tap the avatar to sign out)
+                        onClick={(e) => {
+                          try {
+                            // Only trigger logout for mobile widths (< md)
+                            if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                              e.stopPropagation();
+                              handleLogout();
+                              setIsMobileMenuOpen(false);
+                            }
+                          } catch (err) {
+                            // ignore
+                          }
+                        }}
                       >
                         <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full">
                           {user.photoURL ? (
@@ -152,7 +218,7 @@ export function ImprovedHeader() {
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         className="text-red-600 focus:text-red-600 cursor-pointer"
-                        onSelect={handleLogout}
+                        onClick={handleLogout}
                       >
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Sair</span>

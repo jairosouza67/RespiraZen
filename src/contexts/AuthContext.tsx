@@ -24,11 +24,24 @@ import { AuthContextType, UserProfile, UserProgress, SessionHistory } from '@/ty
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Verificar se o Firebase está configurado
-const isFirebaseConfigured = () => {
-  return import.meta.env.VITE_FIREBASE_API_KEY && 
-         import.meta.env.VITE_FIREBASE_API_KEY !== 'your_api_key_here';
+// Verificar e listar variáveis de ambiente do Firebase
+const firebaseEnvVars = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID'
+];
+
+const getMissingFirebaseVars = (): string[] => {
+  return firebaseEnvVars.filter((key) => {
+    const value = (import.meta as any).env[key];
+    return !value || value === '' || value === 'your_api_key_here';
+  });
 };
+
+const isFirebaseConfigured = () => getMissingFirebaseVars().length === 0;
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -51,24 +64,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Monitorar estado de autenticação
   useEffect(() => {
     if (!isFirebaseConfigured()) {
-      // Se Firebase não está configurado, apenas marcar como não carregando
+      console.warn('[Auth] Firebase não configurado. Variáveis ausentes:', getMissingFirebaseVars());
       setLoading(false);
       return;
     }
-
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
-      
       if (user) {
         await loadUserData(user);
       } else {
         setUserProfile(null);
         setUserProgress(null);
       }
-      
       setLoading(false);
     });
-
     return unsubscribe;
   }, []);
 
@@ -161,9 +170,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login com email e senha
   const signInWithEmail = async (email: string, password: string) => {
     if (!isFirebaseConfigured()) {
-      throw new Error('Firebase não configurado. Configure suas chaves no arquivo .env');
+      throw new Error('Firebase não configurado. Faltando: ' + getMissingFirebaseVars().join(', '));
     }
-    
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch (error: any) {
@@ -174,15 +182,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Registro com email e senha
   const signUpWithEmail = async (email: string, password: string, displayName: string) => {
     if (!isFirebaseConfigured()) {
-      throw new Error('Firebase não configurado. Configure suas chaves no arquivo .env');
+      throw new Error('Firebase não configurado. Faltando: ' + getMissingFirebaseVars().join(', '));
     }
-    
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Atualizar nome do usuário
       await updateProfile(result.user, { displayName });
-      
     } catch (error: any) {
       throw new Error(getErrorMessage(error.code));
     }
@@ -191,9 +195,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Login com Google
   const signInWithGoogle = async () => {
     if (!isFirebaseConfigured()) {
-      throw new Error('Firebase não configurado. Configure suas chaves no arquivo .env');
+      throw new Error('Firebase não configurado. Faltando: ' + getMissingFirebaseVars().join(', '));
     }
-    
     try {
       await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
@@ -204,13 +207,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Logout
   const signOut = async () => {
     if (!isFirebaseConfigured()) {
-      // Se Firebase não está configurado, fazer logout local
+      console.warn('[Auth] signOut chamado sem Firebase configurado. Limpando estado local. Ausentes:', getMissingFirebaseVars());
       setUser(null);
       setUserProfile(null);
       setUserProgress(null);
       return;
     }
-    
     try {
       await firebaseSignOut(auth);
     } catch (error: any) {
@@ -221,9 +223,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Reset de senha
   const resetPassword = async (email: string) => {
     if (!isFirebaseConfigured()) {
-      throw new Error('Firebase não configurado. Configure suas chaves no arquivo .env');
+      throw new Error('Firebase não configurado. Faltando: ' + getMissingFirebaseVars().join(', '));
     }
-    
     try {
       await sendPasswordResetEmail(auth, email);
     } catch (error: any) {
@@ -235,42 +236,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const updateUserProgress = async (sessionData: Omit<SessionHistory, 'id' | 'completedAt'>) => {
     if (!user) return;
     if (!isFirebaseConfigured()) {
-      console.log('Firebase não configurado - progresso salvo apenas localmente');
+      console.log('Firebase não configurado - progresso não será persistido. Faltando:', getMissingFirebaseVars());
       return;
     }
-
     try {
       const progressRef = doc(db, 'progress', user.uid);
       const sessionId = Date.now().toString();
-      
       const newSession: SessionHistory = {
         ...sessionData,
         id: sessionId,
         completedAt: new Date()
       };
-
-      // Atualizar estatísticas
       const statsUpdate = {
         [`stats.totalSessions`]: increment(1),
         [`stats.totalMinutes`]: increment(Math.round(sessionData.duration / 60)),
         [`stats.lastSessionDate`]: serverTimestamp()
-      };
-
+      } as any;
       if (sessionData.type === 'breathing') {
         statsUpdate[`stats.breathingSessions`] = increment(1);
       } else {
         statsUpdate[`stats.meditationSessions`] = increment(1);
       }
-
       await updateDoc(progressRef, {
         ...statsUpdate,
         [`history`]: [...(userProgress?.history || []), newSession]
       });
-
-      // Atualizar localStorage para compatibilidade
       const totalSessions = Number(localStorage.getItem('rz_sessions_completed') || '0') + 1;
       localStorage.setItem('rz_sessions_completed', String(totalSessions));
-      
       if (sessionData.type === 'breathing') {
         const breathingSessions = Number(localStorage.getItem('rz_breathing_sessions') || '0') + 1;
         localStorage.setItem('rz_breathing_sessions', String(breathingSessions));
@@ -278,8 +270,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const meditationSessions = Number(localStorage.getItem('rz_meditation_sessions') || '0') + 1;
         localStorage.setItem('rz_meditation_sessions', String(meditationSessions));
       }
-
-      // Recarregar dados
       await loadUserData(user);
     } catch (error) {
       console.error('Erro ao atualizar progresso:', error);
