@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
+import { AuthButton } from "@/components/auth/AuthButton";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { Play } from "lucide-react";
 
 const Index = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -58,21 +60,27 @@ const Index = () => {
             
             <div className="flex flex-col items-center gap-4 mb-12">
               {user ? (
-                // Usuário logado - mostrar botão principal
-                <>
+                // Usuário logado - mostrar botão principal e opções de usuário
+                <div className="flex flex-col items-center gap-4">
                   <Link to="/respirar">
                     <Button 
-                      variant="outline" 
+                      variant="default" 
                       size="lg" 
-                      className="border border-gray-300 text-gray-600 hover:bg-gray-50 px-8 py-3 text-base font-medium rounded-lg transition-all duration-200 min-w-[180px] bg-white/80"
+                      className="px-10 py-4 text-xl font-bold transition-all duration-300 shadow-lg hover:scale-105 bg-green-600 text-white hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 dark:text-white rounded-2xl border-4 border-green-400/30"
                     >
-                      Começar a Respirar
+                      <Play className="w-6 h-6 mr-2" />
+                      Começar Sessão
                     </Button>
                   </Link>
-                </>
+                  
+                  {/* Informações do usuário logado */}
+                  <div className="flex items-center gap-4 p-4 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border border-gray-200/50">
+                    <AuthButton onOpenAuth={() => setIsAuthModalOpen(true)} />
+                  </div>
+                </div>
               ) : (
-                // Usuário não logado - mostrar botão de preview (botão Entrar removido)
-                <>
+                // Usuário não logado - mostrar botões de ação
+                <div className="flex flex-col items-center gap-4">
                   <Link to="/respirar">
                     <Button 
                       variant="default" 
@@ -82,7 +90,12 @@ const Index = () => {
                       Experimentar Grátis
                     </Button>
                   </Link>
-                </>
+                  
+                  {/* Botão de Login */}
+                  <div className="flex items-center gap-4">
+                    <AuthButton onOpenAuth={() => setIsAuthModalOpen(true)} />
+                  </div>
+                </div>
               )}
             </div>
 
