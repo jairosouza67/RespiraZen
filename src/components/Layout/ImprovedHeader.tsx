@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/context/ImprovedThemeContext";
 // AuthButton removido
@@ -25,6 +25,18 @@ export function ImprovedHeader() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Função para navegar para o topo da página
+  const navigateToTop = (path: string) => {
+    if (location.pathname === path) {
+      // Se já está na mesma página, rola para o topo
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // Se é uma página diferente, navega normalmente
+      navigate(path);
+    }
+  };
 
   const navigation = [
     { name: 'Início', path: '/' },
@@ -63,17 +75,20 @@ export function ImprovedHeader() {
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center space-x-2">
+            <button
+              onClick={() => navigateToTop('/')}
+              className="flex items-center space-x-2"
+            >
               <div className="text-2xl">🧘‍♀️</div>
               <span className="text-xl font-bold text-primary">RespiraZen</span>
-            </Link>
+            </button>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               {navigation.map((item) => (
-                <Link
+                <button
                   key={item.path}
-                  to={item.path}
+                  onClick={() => navigateToTop(item.path)}
                   className={`text-sm font-medium transition-colors hover:text-primary ${
                     location.pathname === item.path
                       ? 'text-primary'
@@ -81,7 +96,7 @@ export function ImprovedHeader() {
                   }`}
                 >
                   {item.name}
-                </Link>
+                </button>
               ))}
             </nav>
 
@@ -214,18 +229,20 @@ export function ImprovedHeader() {
             >
               <div className="px-2 pt-2 pb-3 space-y-1">
                 {navigation.map((item) => (
-                  <Link
+                  <button
                     key={item.path}
-                    to={item.path}
+                    onClick={() => {
+                      navigateToTop(item.path);
+                      setIsMobileMenuOpen(false);
+                    }}
                     className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
                       location.pathname === item.path
                         ? 'bg-primary/10 text-primary'
                         : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                     }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {item.name}
-                  </Link>
+                  </button>
                 ))}
 
                 {/* Mobile Auth */}
