@@ -102,6 +102,7 @@ export function ImprovedHeader() {
 
             {/* Actions */}
             <div className="flex items-center space-x-4">
+
               {/* Theme Toggle */}
               <Button
                 variant="ghost"
@@ -118,89 +119,73 @@ export function ImprovedHeader() {
                 <span className="sr-only">Alternar tema</span>
               </Button>
 
-              {/* Auth */}
-              <div className="hidden md:block">
-                {user ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        type="button"
-                        aria-label="User menu / logout on mobile"
-                        variant="ghost"
-                        className="relative h-8 w-8 rounded-full border border-primary/20 hover:border-primary/40"
-                        // On small screens, make the avatar act as a visible logout action
-                        // (mobile users can tap the avatar to sign out)
-                        onClick={(e) => {
-                          try {
-                            // Only trigger logout for mobile widths (< md)
-                            if (typeof window !== 'undefined' && window.innerWidth < 768) {
-                              e.stopPropagation();
-                              handleLogout();
-                              setIsMobileMenuOpen(false);
-                            }
-                          } catch (err) {
-                            // ignore
-                          }
-                        }}
-                      >
-                        <div className="flex items-center justify-center w-8 h-8 bg-primary/20 hover:bg-primary/30 rounded-full border-2 border-primary/30">
-                          {user.photoURL ? (
-                            <img
-                              className="h-8 w-8 rounded-full"
-                              src={user.photoURL}
-                              alt={user.displayName || user.email || 'User'}
-                            />
-                          ) : (
-                            <User className="h-4 w-4 text-primary-foreground" />
-                          )}
-                        </div>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="end" forceMount>
-                      <div className="flex items-center justify-start gap-2 p-2">
-                        <div className="flex flex-col space-y-1 leading-none">
-                          {user.displayName && (
-                            <p className="font-medium text-foreground">{user.displayName}</p>
-                          )}
-                          <p className="w-[200px] truncate text-sm text-muted-foreground">
-                            {user.email}
-                          </p>
-                        </div>
+              {/* Auth - sempre visível no topo */}
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      type="button"
+                      aria-label="User menu"
+                      variant="ghost"
+                      className="relative h-8 w-8 rounded-full border border-primary/20 hover:border-primary/40"
+                    >
+                      <div className="flex items-center justify-center w-8 h-8 bg-primary/20 hover:bg-primary/30 rounded-full border-2 border-primary/30">
+                        {user.photoURL ? (
+                          <img
+                            className="h-8 w-8 rounded-full"
+                            src={user.photoURL}
+                            alt={user.displayName || user.email || 'User'}
+                          />
+                        ) : (
+                          <User className="h-4 w-4 text-primary-foreground" />
+                        )}
                       </div>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link to="/dashboard" className="flex items-center text-foreground hover:text-primary">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>Perfil</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/dashboard" className="flex items-center text-foreground hover:text-primary">
-                          <Settings className="mr-2 h-4 w-4" />
-                          <span>Configurações</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-red-600 focus:text-red-700 dark:text-red-400 dark:focus:text-red-300 cursor-pointer bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-900/50"
-                        onClick={handleLogout}
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Sair</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <Button
-                    onClick={() => setIsAuthModalOpen(true)}
-                    variant="default"
-                    size="sm"
-                    className="bg-primary hover:bg-primary/90 text-white"
-                  >
-                    Entrar
-                  </Button>
-                )}
-              </div>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <div className="flex items-center justify-start gap-2 p-2">
+                      <div className="flex flex-col space-y-1 leading-none">
+                        {user.displayName && (
+                          <p className="font-medium text-foreground">{user.displayName}</p>
+                        )}
+                        <p className="w-[200px] truncate text-sm text-muted-foreground">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/dashboard" className="flex items-center text-foreground hover:text-primary">
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Perfil</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/dashboard" className="flex items-center text-foreground hover:text-primary">
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Configurações</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-red-600 focus:text-red-700 dark:text-red-400 dark:focus:text-red-300 cursor-pointer bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-900/50"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sair</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button
+                  onClick={() => setIsAuthModalOpen(true)}
+                  variant="default"
+                  size="sm"
+                  className="bg-primary hover:bg-primary/90 text-white"
+                >
+                  Entrar
+                </Button>
+              )}
 
               {/* Mobile Menu Button */}
               <Button
