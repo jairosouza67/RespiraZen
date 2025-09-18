@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { Heart, MessageCircle, Share2, User, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AuthModal } from '@/components/auth/AuthModal'; // Corrigir importação para exportação nomeada
 
 interface CommunityPost {
   id: string;
@@ -122,6 +123,7 @@ const formatTimeAgo = (timestamp: string) => {
 export default function Community() {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // Estado para controlar o modal
 
   useEffect(() => {
     setMounted(true);
@@ -288,11 +290,18 @@ export default function Community() {
             variant="secondary"
             size="lg"
             className="px-8 py-3 rounded-full font-semibold transition-all bg-background text-primary hover:bg-accent hover:text-accent-foreground border border-primary/20"
+            onClick={() => setIsAuthModalOpen(true)} // Adicionar onClick para abrir o modal
           >
             <User className="w-5 h-5 mr-2" />
             Criar Conta Gratuita
           </Button>
         </motion.div>
+
+        {/* Auth Modal */}
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
       </div>
     </div>
   );
