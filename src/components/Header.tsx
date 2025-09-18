@@ -85,7 +85,16 @@ export const Header = () => {
                   <span className="hidden sm:inline">Sair</span>
                 </Button>
               </div>
-            ) : null}
+            ) : (
+              <Button
+                onClick={() => setIsAuthModalOpen(true)}
+                variant="default"
+                size="sm"
+                className="bg-primary hover:bg-primary/90 text-white"
+              >
+                Entrar
+              </Button>
+            )}
           </div>
         </div>
       </header>

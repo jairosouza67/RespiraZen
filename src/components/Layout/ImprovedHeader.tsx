@@ -87,54 +87,6 @@ export function ImprovedHeader() {
 
             {/* Actions */}
             <div className="flex items-center space-x-4">
-              {/* User / Auth Section (unificado) */}
-              {user ? (
-                <div className="flex items-center gap-2">
-                  {/* Avatar (sempre visível) */}
-                  <button
-                    type="button"
-                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                    className="relative flex items-center justify-center w-9 h-9 rounded-full bg-primary/10 overflow-hidden focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    aria-label="Abrir menu do usuário"
-                  >
-                    {user.photoURL ? (
-                      <img
-                        src={user.photoURL}
-                        alt={user.displayName || user.email || 'Avatar'}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="h-4 w-4 text-primary" />
-                    )}
-                  </button>
-                  {/* Saudação + logout (desktop) */}
-                  <div className="hidden md:flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground max-w-[160px] truncate">
-                      Olá, {user.displayName || user.email}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="h-4 w-4 mr-1" />
-                      <span>Sair</span>
-                    </Button>
-                  </div>
-                  {/* Logout rápido em mobile */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="md:hidden flex items-center gap-1 px-2"
-                    onClick={handleLogout}
-                    aria-label="Sair"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    <span className="text-xs">Sair</span>
-                  </Button>
-                </div>
-              ) : null}
               {/* Theme Toggle */}
               <Button
                 variant="ghost"
@@ -160,7 +112,7 @@ export function ImprovedHeader() {
                         type="button"
                         aria-label="User menu / logout on mobile"
                         variant="ghost"
-                        className="relative h-8 w-8 rounded-full"
+                        className="relative h-8 w-8 rounded-full border border-primary/20 hover:border-primary/40"
                         // On small screens, make the avatar act as a visible logout action
                         // (mobile users can tap the avatar to sign out)
                         onClick={(e) => {
@@ -176,7 +128,7 @@ export function ImprovedHeader() {
                           }
                         }}
                       >
-                        <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full">
+                        <div className="flex items-center justify-center w-8 h-8 bg-primary/20 hover:bg-primary/30 rounded-full border-2 border-primary/30">
                           {user.photoURL ? (
                             <img
                               className="h-8 w-8 rounded-full"
@@ -184,7 +136,7 @@ export function ImprovedHeader() {
                               alt={user.displayName || user.email || 'User'}
                             />
                           ) : (
-                            <User className="h-4 w-4 text-primary" />
+                            <User className="h-4 w-4 text-primary-foreground" />
                           )}
                         </div>
                       </Button>
@@ -193,7 +145,7 @@ export function ImprovedHeader() {
                       <div className="flex items-center justify-start gap-2 p-2">
                         <div className="flex flex-col space-y-1 leading-none">
                           {user.displayName && (
-                            <p className="font-medium">{user.displayName}</p>
+                            <p className="font-medium text-foreground">{user.displayName}</p>
                           )}
                           <p className="w-[200px] truncate text-sm text-muted-foreground">
                             {user.email}
@@ -202,20 +154,20 @@ export function ImprovedHeader() {
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link to="/dashboard" className="flex items-center">
+                        <Link to="/dashboard" className="flex items-center text-foreground hover:text-primary">
                           <User className="mr-2 h-4 w-4" />
                           <span>Perfil</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/dashboard" className="flex items-center">
+                        <Link to="/dashboard" className="flex items-center text-foreground hover:text-primary">
                           <Settings className="mr-2 h-4 w-4" />
                           <span>Configurações</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        className="text-red-600 focus:text-red-600 cursor-pointer"
+                        className="text-red-600 focus:text-red-700 dark:text-red-400 dark:focus:text-red-300 cursor-pointer bg-red-50 hover:bg-red-100 dark:bg-red-950/30 dark:hover:bg-red-900/50"
                         onClick={handleLogout}
                       >
                         <LogOut className="mr-2 h-4 w-4" />
@@ -223,7 +175,16 @@ export function ImprovedHeader() {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                ) : null}
+                ) : (
+                  <Button
+                    onClick={() => setIsAuthModalOpen(true)}
+                    variant="default"
+                    size="sm"
+                    className="bg-primary hover:bg-primary/90 text-white"
+                  >
+                    Entrar
+                  </Button>
+                )}
               </div>
 
               {/* Mobile Menu Button */}
@@ -295,7 +256,7 @@ export function ImprovedHeader() {
                       <div className="flex flex-col gap-2">
                         <Link
                           to="/dashboard"
-                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground px-2 py-1 hover:bg-muted rounded"
+                          className="flex items-center gap-2 text-sm text-foreground hover:text-primary px-2 py-1 hover:bg-muted rounded"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
                           <User className="h-4 w-4" />
