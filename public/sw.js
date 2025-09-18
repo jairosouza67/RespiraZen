@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 const CACHE_NAME = 'respirazen-v1';
 const STATIC_CACHE = 'respirazen-static-v1';
@@ -6,19 +7,12 @@ const DYNAMIC_CACHE = 'respirazen-dynamic-v1';
 const staticAssets = [
   '/',
   '/respirar',
-  '/dashboard',
-  '/comunidade',
-  '/manifest.json',
-  '/water-background.jpg',
-  // Add your static assets here
-];
 
-// Install event
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(STATIC_CACHE).then(cache => {
-      return cache.addAll(staticAssets);
-    })
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    fetch(event.request)
+      .catch(() => caches.match(event.request))
+>>>>>>> 69e4168 (sw changes)
   );
 });
 
