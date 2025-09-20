@@ -284,16 +284,6 @@ import { useAuth } from "@/contexts/AuthContext";
 
               {/* Configurações Gerais */}
               <div className="space-y-4">
-                
-                <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-2 block">Respirações por minuto: {bpm}</Label>
-                  <Slider value={[bpm]} min={4} max={10} step={1} onValueChange={(v) => setBpm(v[0])} className="w-full" />
-                  <div className="flex justify-between text-xs text-gray-500 mt-1">
-                    <span>4 rpm</span>
-                    <span>10 rpm</span>
-                  </div>
-                </div>
-
                 <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
                   <div>
                     <Label className="text-sm font-medium text-gray-700">Vibração</Label>

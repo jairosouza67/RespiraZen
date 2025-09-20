@@ -8,7 +8,7 @@ const steps = [
   {
     phase: 'Inspire',
     duration: '4 segundos',
-    description: 'Respire lentamente pelo nariz, expandindo o diafragma',
+    description: 'Siga o ritmo e concentre-se na respiração consciente',
     icon: ArrowUp,
     color: 'from-green-400 to-green-500',
     bgColor: 'bg-green-50 dark:bg-green-900/20'
@@ -16,7 +16,7 @@ const steps = [
   {
     phase: 'Segure',
     duration: '4 segundos',
-    description: 'Mantenha o ar nos pulmões, relaxando os músculos',
+    description: 'Siga o ritmo e concentre-se na respiração consciente',
     icon: Pause,
     color: 'from-yellow-400 to-yellow-500',
     bgColor: 'bg-yellow-50 dark:bg-yellow-900/20'
@@ -24,7 +24,7 @@ const steps = [
   {
     phase: 'Expire',
     duration: '4 segundos',
-    description: 'Libere o ar lentamente pela boca, liberando tensões',
+    description: 'Siga o ritmo e concentre-se na respiração consciente',
     icon: ArrowDown,
     color: 'from-blue-400 to-blue-500',
     bgColor: 'bg-blue-50 dark:bg-blue-900/20'

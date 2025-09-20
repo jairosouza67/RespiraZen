@@ -297,6 +297,7 @@ export default function Meditations() {
   const [isPaused, setIsPaused] = useState(false);
   const [tempoRestante, setTempoRestante] = useState(SESSOES[0].minutos * 60);
   const [duracaoAudio, setDuracaoAudio] = useState<number | null>(null); // Duração do áudio em segundos
+  const [duracaoDetectada, setDuracaoDetectada] = useState<Record<string, number>>({}); // Cache de durações detectadas por sessão
   const [ambienteAtivo, setAmbienteAtivo] = useState<Record<string, boolean>>({});
   const [volume, setVolume] = useState<Record<string, number>>({ chuva: 0.3, vento: 0.25 });
   const [customAudio, setCustomAudio] = useState<Record<string, CustomAudio>>({});
@@ -341,9 +342,12 @@ export default function Meditations() {
 
   useEffect(() => {
     const s = SESSOES.find((x) => x.id === sessao)!;
-    setTempoRestante(s.minutos * 60);
-    setDuracaoAudio(null); // Reset da duração quando trocar de sessão
-  }, [sessao]);
+    const duracaoCache = duracaoDetectada[sessao];
+    const tempoFinal = duracaoCache || (s.minutos * 60);
+    setTempoRestante(tempoFinal);
+    setDuracaoAudio(duracaoCache || null);
+    console.log(`Sessão ${sessao} selecionada - Tempo: ${tempoFinal}s ${duracaoCache ? '(duração do áudio)' : '(tempo padrão)'}`);
+  }, [sessao, duracaoDetectada]);
 
   // Efeito para atualizar o tempo quando a duração do áudio for detectada
   useEffect(() => {
@@ -356,6 +360,8 @@ export default function Meditations() {
   useEffect(() => {
     // Carregar configurações de áudio personalizadas salvas
     const loadedCustomAudio: Record<string, CustomAudio> = {};
+    const loadedDuracoes: Record<string, number> = {};
+    
     SESSOES.forEach(sessao => {
       const saved = localStorage.getItem(`rz_custom_audio_${sessao.id}`);
       if (saved) {
@@ -365,8 +371,26 @@ export default function Meditations() {
           console.error('Erro ao carregar áudio personalizado:', e);
         }
       }
+      
+      // Carregar duração detectada salva
+      const savedDuration = localStorage.getItem(`rz_audio_duration_${sessao.id}`);
+      if (savedDuration) {
+        try {
+          loadedDuracoes[sessao.id] = parseInt(savedDuration);
+        } catch (e) {
+          console.error('Erro ao carregar duração salva:', e);
+        }
+      }
     });
+    
     setCustomAudio(loadedCustomAudio);
+    setDuracaoDetectada(loadedDuracoes);
+    
+    // Detectar duração do áudio da sessão atual se não estiver em cache
+    const sessaoAtual = SESSOES.find(s => s.id === sessao);
+    if (sessaoAtual && !loadedDuracoes[sessao]) {
+      detectAudioDuration(sessao);
+    }
 
     // Listener para mensagens do YouTube
     const handleYouTubeMessage = (event: MessageEvent) => {
@@ -467,6 +491,47 @@ export default function Meditations() {
   const saveCustomAudio = (sessionId: string, audioConfig: CustomAudio) => {
     setCustomAudio(prev => ({ ...prev, [sessionId]: audioConfig }));
     localStorage.setItem(`rz_custom_audio_${sessionId}`, JSON.stringify(audioConfig));
+    // Limpar duração detectada quando áudio for alterado
+    setDuracaoDetectada(prev => {
+      const newDuracoes = { ...prev };
+      delete newDuracoes[sessionId];
+      localStorage.removeItem(`rz_audio_duration_${sessionId}`);
+      return newDuracoes;
+    });
+    // Detectar nova duração
+    setTimeout(() => detectAudioDuration(sessionId), 500);
+  };
+
+  const saveDuracaoDetectada = (sessionId: string, duration: number) => {
+    setDuracaoDetectada(prev => ({ ...prev, [sessionId]: duration }));
+    localStorage.setItem(`rz_audio_duration_${sessionId}`, duration.toString());
+    console.log(`Duração salva para ${sessionId}: ${duration}s`);
+  };
+
+  const detectAudioDuration = (sessionId: string) => {
+    const audioConfig = customAudio[sessionId] || loadCustomAudio(sessionId);
+    if (audioConfig.type === 'none' || !audioConfig.url) {
+      return;
+    }
+
+    console.log(`🔍 Detectando duração do áudio para ${sessionId}...`);
+
+    if (audioConfig.type === 'mp3') {
+      const audio = new Audio(audioConfig.url);
+      audio.addEventListener('loadedmetadata', () => {
+        if (audio.duration && isFinite(audio.duration)) {
+          const duration = Math.round(audio.duration);
+          saveDuracaoDetectada(sessionId, duration);
+        }
+      });
+      audio.addEventListener('error', () => {
+        console.log(`Erro ao detectar duração do MP3 para ${sessionId}`);
+      });
+    } else if (audioConfig.type === 'youtube') {
+      // Para YouTube, usar uma estimativa baseada no título ou usar tempo padrão
+      // A detecção real só acontece durante a reprodução
+      console.log(`YouTube detectado para ${sessionId}, duração será detectada durante reprodução`);
+    }
   };
 
   const loadCustomAudio = (sessionId: string): CustomAudio => {
@@ -566,6 +631,7 @@ export default function Meditations() {
                 const duration = Math.round(data.info.duration);
                 console.log('Duração do YouTube detectada:', duration, 'segundos');
                 setDuracaoAudio(duration);
+                saveDuracaoDetectada(sessionId, duration);
               }
             } catch (e) {
               // Ignorar mensagens que não são JSON válido
@@ -618,6 +684,7 @@ export default function Meditations() {
             const duration = Math.round(audio.duration);
             console.log(`⏱️ Duração do MP3 detectada: ${duration} segundos`);
             setDuracaoAudio(duration);
+            saveDuracaoDetectada(sessionId, duration);
           } else {
             console.log(`⚠️ Duração do MP3 não disponível ou infinita (stream)`);
           }
@@ -646,6 +713,7 @@ export default function Meditations() {
                 const duration = Math.round(fallbackAudio.duration);
                 console.log(`⏱️ Duração do fallback MP3: ${duration} segundos`);
                 setDuracaoAudio(duration);
+                saveDuracaoDetectada(sessionId, duration);
               }
             });
             
@@ -721,22 +789,16 @@ export default function Meditations() {
     const sessaoAtual = SESSOES.find((x) => x.id === sessao)!;
     const minutos = sessaoAtual.minutos;
     
-    // Reset da duração do áudio para detectar novamente
-    setDuracaoAudio(null);
+    // Usar duração detectada em cache ou tempo padrão
+    const duracaoCache = duracaoDetectada[sessao];
+    const tempoFinal = duracaoCache || (minutos * 60);
+    setTempoRestante(tempoFinal);
+    setDuracaoAudio(duracaoCache || null);
+    
+    console.log(`Sessão iniciada com duração: ${tempoFinal} segundos ${duracaoCache ? '(duração do áudio em cache)' : '(tempo padrão)'}`);
     
     // Reproduzir áudio personalizado se configurado
     playCustomAudio(sessao);
-    
-    // Aguardar um pouco para detectar a duração do áudio
-    setTimeout(() => {
-      const tempoFinal = duracaoAudio || (minutos * 60); // Usar duração do áudio ou tempo padrão
-      setTempoRestante(tempoFinal);
-      
-      console.log(`Sessão iniciada com duração: ${tempoFinal} segundos ${duracaoAudio ? '(baseada no áudio)' : '(tempo padrão)'}`);
-    }, 3000); // 3 segundos para detectar duração
-    
-    // Usar tempo padrão inicialmente
-    setTempoRestante(minutos * 60);
 
     // Remover toda a síntese de voz - apenas áudio personalizado
     // (Removido: roteiros híbridos e tradicionais com speak())
@@ -894,7 +956,7 @@ export default function Meditations() {
     };
 
     return (
-      <DialogContent className="sm:max-w-md">
+      <>
         <DialogHeader>
           <DialogTitle>Configurar Áudio Personalizado</DialogTitle>
           <DialogDescription>
@@ -933,7 +995,7 @@ export default function Meditations() {
                      <p>🎵 <strong>Áudio apenas:</strong> O vídeo será reproduzido de forma invisível</p>
                      <p>⚠️ <strong>Limitação:</strong> Alguns vídeos podem ter restrições de reprodução</p>
                      <p>💡 <strong>Dica:</strong> Para controle total de volume, use um arquivo MP3 direto</p>
-                     <p>� <strong>Formatos aceitos:</strong> youtube.com/watch?v=ID ou youtu.be/ID</p>
+                     <p>📋 <strong>Formatos aceitos:</strong> youtube.com/watch?v=ID ou youtu.be/ID</p>
                    </div>
                  )}
                </div>
@@ -961,7 +1023,7 @@ export default function Meditations() {
             </Button>
           </div>
         </div>
-      </DialogContent>
+      </>
     );
   };
 
@@ -1002,22 +1064,20 @@ export default function Meditations() {
                           <Badge variant={s.type === 'hybrid' ? 'default' : 'secondary'}>
                             {s.type === 'hybrid' ? 'Híbrida' : 'Tradicional'}
                           </Badge>
-                          <Dialog open={audioConfigOpen && selectedSession === s.id} onOpenChange={(open) => {
-                            setAudioConfigOpen(open);
-                            if (open) setSelectedSession(s.id);
-                          }}>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant={customAudio[s.id]?.type !== 'none' && customAudio[s.id]?.url ? "default" : "ghost"} 
-                                size="sm" 
-                                className="h-8 w-8 p-0"
-                                title="Configurar áudio personalizado"
-                              >
-                                <Music className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <AudioConfigDialog sessionId={s.id} />
-                          </Dialog>
+                          <Button 
+                            variant={customAudio[s.id]?.type !== 'none' && customAudio[s.id]?.url ? "default" : "ghost"} 
+                            size="sm" 
+                            className="h-8 w-8 p-0"
+                            title="Configurar áudio personalizado"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setSelectedSession(s.id);
+                              setAudioConfigOpen(true);
+                            }}
+                          >
+                            <Music className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                       <CardTitle className="text-lg">{s.label}</CardTitle>
@@ -1140,6 +1200,32 @@ export default function Meditations() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Dialog de configuração separado */}
+      <Dialog open={audioConfigOpen} onOpenChange={(open) => {
+        if (!open) {
+          setAudioConfigOpen(false);
+          setSelectedSession('');
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Configurar Áudio Personalizado</DialogTitle>
+            <DialogDescription>
+              Configure um áudio personalizado para a sessão "{selectedSession ? SESSOES.find(s => s.id === selectedSession)?.label : ''}"
+            </DialogDescription>
+          </DialogHeader>
+          {selectedSession && (
+            <AudioConfigDialog 
+              sessionId={selectedSession}
+              onSave={() => {
+                setAudioConfigOpen(false);
+                setSelectedSession('');
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
