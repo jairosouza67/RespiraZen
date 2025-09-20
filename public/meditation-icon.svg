@@ -1,44 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <defs>
-    <style>
-      .meditation-figure { fill: #22c55e; }
-      .circle-arrow { fill: none; stroke: #22c55e; stroke-width: 8; stroke-linecap: round; }
-    </style>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16a34a;stop-opacity:1" />
+    </linearGradient>
   </defs>
   
-  <!-- Circular arrows indicating cycle/flow -->
-  <path class="circle-arrow" d="M 40 100 A 60 60 0 1 1 160 100" marker-end="url(#arrowhead)"/>
-  <path class="circle-arrow" d="M 160 100 A 60 60 0 1 1 40 100" marker-end="url(#arrowhead)"/>
+  <!-- Simple rounded square with gradient matching Header -->
+  <rect x="2" y="2" width="28" height="28" rx="6" ry="6" fill="url(#gradient)" />
   
-  <!-- Arrow markers -->
-  <defs>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#22c55e" />
-    </marker>
-  </defs>
-  
-  <!-- Meditation figure -->
-  <g class="meditation-figure">
-    <!-- Head -->
-    <circle cx="100" cy="70" r="18"/>
-    
-    <!-- Body -->
-    <ellipse cx="100" cy="105" rx="25" ry="20"/>
-    
-    <!-- Arms in meditation pose -->
-    <ellipse cx="75" cy="100" rx="8" ry="15" transform="rotate(-30 75 100)"/>
-    <ellipse cx="125" cy="100" rx="8" ry="15" transform="rotate(30 125 100)"/>
-    
-    <!-- Hands in mudra position -->
-    <circle cx="70" cy="110" r="6"/>
-    <circle cx="130" cy="110" r="6"/>
-    
-    <!-- Legs in lotus position -->
-    <ellipse cx="85" cy="130" rx="20" ry="12" transform="rotate(-15 85 130)"/>
-    <ellipse cx="115" cy="130" rx="20" ry="12" transform="rotate(15 115 130)"/>
-    
-    <!-- Feet -->
-    <ellipse cx="75" cy="140" rx="8" ry="5"/>
-    <ellipse cx="125" cy="140" rx="8" ry="5"/>
-  </g>
+  <!-- Simple breathing symbol - circle with subtle inner circle -->
+  <circle cx="16" cy="16" r="8" fill="white" opacity="0.9"/>
+  <circle cx="16" cy="16" r="4" fill="white" opacity="0.6"/>
 </svg>

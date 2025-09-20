@@ -12,7 +12,7 @@ async function createIcons() {
 
     // Crie ícones em todos os tamanhos necessários
     for (const size of sizes) {
-      await sharp('public/placeholder.svg')
+      await sharp('public/icon-template.svg')
         .resize(size, size)
         .png()
         .toFile(`public/icons/icon-${size}x${size}.png`);
