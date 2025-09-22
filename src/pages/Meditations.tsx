@@ -47,32 +47,35 @@ const FALLBACK_AUDIOS: Record<string, string> = {
 };
 
 const SESSOES = [
-  { 
-    id: 'foco', 
-    label: 'Foco Profundo', 
-    minutos: 5, 
+  {
+    id: 'foco',
+    label: 'Foco Profundo',
+    minutos: 5,
     icon: Focus,
     description: 'Desenvolva concentração e clareza mental',
     type: 'hybrid',
-    techniques: ['respiração', 'visualização', 'ancoragem']
+    techniques: ['respiração', 'visualização', 'ancoragem'],
+    categoria: 'foco',
   },
-  { 
-    id: 'relax', 
-    label: 'Relaxamento Ativo', 
-    minutos: 7, 
+  {
+    id: 'relax',
+    label: 'Relaxamento Ativo',
+    minutos: 7,
     icon: Heart,
     description: 'Libere tensões e restaure energia',
     type: 'hybrid',
-    techniques: ['body scan', 'respiração', 'sons ambientes']
+    techniques: ['body scan', 'respiração', 'sons ambientes'],
+    categoria: 'ansiedade',
   },
-  { 
-    id: 'sono', 
-    label: 'Preparação para o Sono', 
-    minutos: 10, 
+  {
+    id: 'sono',
+    label: 'Preparação para o Sono',
+    minutos: 10,
     icon: Moon,
     description: 'Acalme a mente para um sono reparador',
     type: 'traditional',
-    techniques: ['respiração lenta', 'relaxamento progressivo']
+    techniques: ['respiração lenta', 'relaxamento progressivo'],
+    categoria: 'sono',
   },
   {
     id: 'reprogramacao',
@@ -81,7 +84,8 @@ const SESSOES = [
     icon: Brain,
     description: 'Transforme padrões mentais limitantes',
     type: 'hybrid',
-    techniques: ['afirmações', 'visualização', 'ancoragem neural']
+    techniques: ['afirmações', 'visualização', 'ancoragem neural'],
+    categoria: 'ansiedade',
   },
   {
     id: 'energia',
@@ -90,7 +94,8 @@ const SESSOES = [
     icon: Zap,
     description: 'Desperte vitalidade e motivação',
     type: 'hybrid',
-    techniques: ['respiração energizante', 'movimento sutil', 'intenção']
+    techniques: ['respiração energizante', 'movimento sutil', 'intenção'],
+    categoria: 'energia',
   }
 ];
 
@@ -286,7 +291,7 @@ function playDefaultAudio(sessionId: string, customAudioRef?: React.MutableRefOb
       audio.dispatchEvent(new Event('error'));
     }
   }, 3000);
-  
+
   console.log(`🎯 Configuração do áudio do Google Drive concluída para sessão: ${sessionId}`);
 }
 
@@ -308,6 +313,9 @@ export default function Meditations() {
   const ctxRef = useRef<AudioContext | null>(null);
   const nodesRef = useRef<Record<string, { source: AudioBufferSourceNode; gain: GainNode; filter?: BiquadFilterNode }>>({});
   const timerRef = useRef<number | null>(null);
+
+  // Estado para categoria selecionada
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState<string>('todas');
 
   // Função auxiliar para atualizar estatísticas (localStorage + Firebase se logado)
   const updateStats = async (minutos: number, sessaoId: string, customAudioConfig?: CustomAudio) => {
@@ -1046,8 +1054,27 @@ export default function Meditations() {
           </TabsList>
 
           <TabsContent value="sessoes" className="space-y-6">
+            {/* Botões de categoria */}
+            <div className="flex flex-wrap gap-2 mb-6 justify-center">
+              {[
+                { label: 'Todas', value: 'todas' },
+                { label: 'Sono', value: 'sono' },
+                { label: 'Ansiedade', value: 'ansiedade' },
+                { label: 'Foco', value: 'foco' },
+                { label: 'Energia', value: 'energia' },
+              ].map((cat) => (
+                <Button
+                  key={cat.value}
+                  variant={categoriaSelecionada === cat.value ? 'default' : 'outline'}
+                  onClick={() => setCategoriaSelecionada(cat.value)}
+                  className="px-4 py-2 rounded-full text-sm"
+                >
+                  {cat.label}
+                </Button>
+              ))}
+            </div>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {SESSOES.map((s) => {
+              {SESSOES.filter(s => categoriaSelecionada === 'todas' || s.categoria === categoriaSelecionada).map((s) => {
                 const Icon = s.icon;
                 return (
                   <Card 
@@ -1141,13 +1168,12 @@ export default function Meditations() {
                             </Button>
                           </div>
                         ) : (
-                          <Button 
+                          <Button
                             variant="default"
-                            size="sm" 
+                            size="sm"
                             className="w-full mt-3"
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSessao(s.id);
                               start();
                             }}
                           >
@@ -1179,7 +1205,7 @@ export default function Meditations() {
                         {ambienteAtivo[key] ? 'Parar' : 'Reproduzir'}
                       </Button>
                     </div>
-                    
+
                     {ambienteAtivo[key] && (
                       <div className="space-y-2">
                         <Label className="text-sm">Volume: {Math.round((volume[key] ?? 0.25) * 100)}%</Label>
